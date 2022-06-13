@@ -44,8 +44,13 @@ def show_person(
     # Validations and definitions of the query parameters
     # query parameters should be optional
     # path parameters always should be obligatory
-    name: Optional[str] = Query(None, min_length=1, max_length=50),
+    name: Optional[str] = Query(None, min_length=1, max_length=50,
+                                title="Name Person",
+                                description="The name of the person to look."),
     # ... -> meaning obligatory
-    age: str = Query(...)
+    # age: int = Query(...) | Obligatory Query
+    age: Optional[int] = Query(None, ge=18, lt=120,
+                               title="Age Person",
+                               description="The age of the person to look.")
 ):
     return {name: age}
