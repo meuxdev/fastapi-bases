@@ -2,7 +2,7 @@
 from typing import Optional
 from enum import Enum
 # Pydantic
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr, PaymentCardNumber
 # FastAPI
 from fastapi import FastAPI, Body, Query, Path
 
@@ -18,6 +18,13 @@ class HairColor(Enum):
     black = "black"
     blonde = "blonde"
     red = "red"
+
+
+class CountriesPermited(Enum):
+    MX = "Mexico"
+    COL = "Colombia"
+    EU = "Estados Unidos"
+    ARG = "Argentina"
 
 
 class Person(BaseModel):
@@ -36,15 +43,28 @@ class Person(BaseModel):
         gt=0,
         le=119
     )
+    # Pydantic Exotic Values
+    email: EmailStr = Field(...)
+    payment_card: PaymentCardNumber = Field(...)
     # Optional Values
     hair_color: Optional[HairColor] = Field(default=None)
     is_married: Optional[bool] = Field(default=None)
 
 
 class Location(BaseModel):
-    city: str = Field(...)
-    state: str = Field(...)
-    country: str = Field(...)
+    city: str = Field(
+        ...,
+        min_length=1,
+        max_length=20,
+    )
+    state: str = Field(
+        ...,
+        min_length=1,
+        max_length=20
+    )
+    country: Optional[CountriesPermited] = Field(
+        default=CountriesPermited.MX
+    )
 
 
 @app.get("/")
