@@ -27,30 +27,6 @@ class CountriesPermited(Enum):
     ARG = "Argentina"
 
 
-class Person(BaseModel):
-    first_name: str = Field(
-        ...,
-        min_length=1,
-        max_length=50,
-    )
-    last_name: str = Field(
-        ...,
-        min_length=1,
-        max_length=50,
-    )
-    age: int = Field(
-        ...,
-        gt=0,
-        le=119
-    )
-    # Pydantic Exotic Values
-    email: EmailStr = Field(...)
-    payment_card: PaymentCardNumber = Field(...)
-    # Optional Values
-    hair_color: Optional[HairColor] = Field(default=None)
-    is_married: Optional[bool] = Field(default=None)
-
-
 class Location(BaseModel):
     city: str = Field(
         ...,
@@ -65,6 +41,66 @@ class Location(BaseModel):
     country: Optional[CountriesPermited] = Field(
         default=CountriesPermited.MX
     )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "city": "La Plata",
+                "state": "Los Hornos",
+                "country": CountriesPermited.ARG,
+            }
+        }
+
+
+class Person(BaseModel):
+    first_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Alejandro",
+    )
+    last_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Andrade Soriano",
+    )
+    age: int = Field(
+        ...,
+        gt=0,
+        le=119,
+        example=24,
+    )
+    # Pydantic Exotic Values
+    email: EmailStr = Field(
+        ...,
+        example="myexapleemail@gmail.com",
+    )
+    # Optional Values
+    payment_card: Optional[PaymentCardNumber] = Field(default=None)
+    hair_color: Optional[HairColor] = Field(
+        default=HairColor.black,
+        example=HairColor.blonde,
+    )
+    is_married: Optional[bool] = Field(
+        default=None,
+        example=False,
+    )
+
+    """
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "first_name": "Facundo",
+                "last_name": "Garcia Martoni",
+                "age": 21,
+                "hair_color": HairColor.blonde,
+                "is_maried": False
+            }
+
+        }
+    """
 
 
 @app.get("/")
@@ -133,4 +169,5 @@ def update_person(
     location: Location = Body(...),
 ):
     results = person.dict()
+    results.update(location.dict())
     return results
