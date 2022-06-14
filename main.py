@@ -13,6 +13,7 @@ app = FastAPI()
 # Models
 
 class HairColor(Enum):
+    """ Hair Color Enum """
     white = "white"
     brown = "brown"
     black = "black"
@@ -21,6 +22,7 @@ class HairColor(Enum):
 
 
 class CountriesPermited(Enum):
+    """ Countries Permited on the API """
     MX = "Mexico"
     COL = "Colombia"
     EU = "Estados Unidos"
@@ -28,6 +30,7 @@ class CountriesPermited(Enum):
 
 
 class Location(BaseModel):
+    """ Location Model """
     city: str = Field(
         ...,
         min_length=1,
@@ -43,6 +46,7 @@ class Location(BaseModel):
     )
 
     class Config:
+        """ Config Example for docs """
         schema_extra = {
             "example": {
                 "city": "La Plata",
@@ -53,6 +57,7 @@ class Location(BaseModel):
 
 
 class Person(BaseModel):
+    """ Person Model """
     first_name: str = Field(
         ...,
         min_length=1,
@@ -88,7 +93,7 @@ class Person(BaseModel):
     )
 
     """
-
+    # CONFIG CLASS BLOCK
     class Config:
         schema_extra = {
             "example": {
@@ -106,7 +111,7 @@ class Person(BaseModel):
 @app.get("/")
 def home():
     """
-        / -> branch
+        Endpoint main -> /
         returns hello world JSON
     """
     return {"Hello": "World"}
@@ -131,7 +136,9 @@ def show_person(
         min_length=1,
         max_length=50,
         title="Person Name",
-        description="The name of the person to look."),
+        description="The name of the person to look.",
+        example="Alejandro",
+    ),
     # ... -> meaning obligatory
     # age: int = Query(...) | Obligatory Query
     age: Optional[int] = Query(
@@ -139,7 +146,9 @@ def show_person(
         ge=18,
         lt=120,
         title="Person Age",
-        description="The age of the person to look.")
+        description="The age of the person to look.",
+        example=24,
+    ),
 ):
     return {name: age}
 
@@ -151,7 +160,9 @@ def show_person_path(
         ...,
         ge=1,
         title="Id Person",
-        description="The Id of the person")
+        description="The Id of the person",
+        example=123,
+    ),
 ):
     return {person_id: "It exists!"}
 
@@ -163,7 +174,8 @@ def update_person(
         ...,
         title="Person Id",
         description="Id to update the person",
-        gt=0
+        gt=0,
+        example=123
     ),
     person: Person = Body(...),
     location: Location = Body(...),
