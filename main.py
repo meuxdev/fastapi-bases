@@ -29,6 +29,43 @@ class CountriesPermited(Enum):
     ARG = "Argentina"
 
 
+class PersonOut(BaseModel):
+    """ Person Model for response """
+    first_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Alejandro",
+    )
+    last_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Andrade Soriano",
+    )
+    age: int = Field(
+        ...,
+        gt=0,
+        le=119,
+        example=24,
+    )
+    # Pydantic Exotic Values
+    email: EmailStr = Field(
+        ...,
+        example="myexapleemail@gmail.com",
+    )
+    # Optional Values
+    payment_card: Optional[PaymentCardNumber] = Field(default=None)
+    hair_color: Optional[HairColor] = Field(
+        default=HairColor.black,
+        example=HairColor.blonde,
+    )
+    is_married: Optional[bool] = Field(
+        default=None,
+        example=False,
+    )
+
+
 class Location(BaseModel):
     """ Location Model """
     city: str = Field(
@@ -91,6 +128,11 @@ class Person(BaseModel):
         default=None,
         example=False,
     )
+    password: str = Field(
+        ...,
+        min_length=8,
+        example="Veryverysecurepassword",
+    )
 
     """
     # CONFIG CLASS BLOCK
@@ -119,7 +161,12 @@ def home():
 
 # Request and Response Body
 # Body(...) -> obligatory body parameter
-@app.post("/person/new")
+@app.post(
+    "/person/new",
+    response_model=Person,
+    response_model_exclude={"password"},
+    response_model_include={"first_name", "last_name", "age", "hair_color"},
+)
 def create_person(person: Person = Body(...)):
     """/person/new -> creates a new person"""
     return person
