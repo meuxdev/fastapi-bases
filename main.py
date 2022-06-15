@@ -29,7 +29,7 @@ class CountriesPermited(Enum):
     ARG = "Argentina"
 
 
-class PersonOut(BaseModel):
+class PersonBase(BaseModel):
     """ Person Model for response """
     first_name: str = Field(
         ...,
@@ -64,6 +64,32 @@ class PersonOut(BaseModel):
         default=None,
         example=False,
     )
+    """
+    # CONFIG CLASS BLOCK
+    class Config:
+        schema_extra = {
+            "example": {
+                "first_name": "Facundo",
+                "last_name": "Garcia Martoni",
+                "age": 21,
+                "hair_color": HairColor.blonde,
+                "is_maried": False
+            }
+
+        }
+    """
+
+
+class PersonOut(PersonBase):
+    pass
+
+
+class Person(PersonBase):
+    password: str = Field(
+        ...,
+        min_length=8,
+        example="Veryverysecurepassword",
+    )
 
 
 class Location(BaseModel):
@@ -93,63 +119,6 @@ class Location(BaseModel):
         }
 
 
-class Person(BaseModel):
-    """ Person Model """
-    first_name: str = Field(
-        ...,
-        min_length=1,
-        max_length=50,
-        example="Alejandro",
-    )
-    last_name: str = Field(
-        ...,
-        min_length=1,
-        max_length=50,
-        example="Andrade Soriano",
-    )
-    age: int = Field(
-        ...,
-        gt=0,
-        le=119,
-        example=24,
-    )
-    # Pydantic Exotic Values
-    email: EmailStr = Field(
-        ...,
-        example="myexapleemail@gmail.com",
-    )
-    # Optional Values
-    payment_card: Optional[PaymentCardNumber] = Field(default=None)
-    hair_color: Optional[HairColor] = Field(
-        default=HairColor.black,
-        example=HairColor.blonde,
-    )
-    is_married: Optional[bool] = Field(
-        default=None,
-        example=False,
-    )
-    password: str = Field(
-        ...,
-        min_length=8,
-        example="Veryverysecurepassword",
-    )
-
-    """
-    # CONFIG CLASS BLOCK
-    class Config:
-        schema_extra = {
-            "example": {
-                "first_name": "Facundo",
-                "last_name": "Garcia Martoni",
-                "age": 21,
-                "hair_color": HairColor.blonde,
-                "is_maried": False
-            }
-
-        }
-    """
-
-
 @app.get("/")
 def home():
     """
@@ -163,9 +132,10 @@ def home():
 # Body(...) -> obligatory body parameter
 @app.post(
     "/person/new",
-    response_model=Person,
-    response_model_exclude={"password"},
-    response_model_include={"first_name", "last_name", "age", "hair_color"},
+    #  response_model=Person,
+    # response_model_exclude={"password"},
+    # response_model_include={"first_name", "last_name", "age", "hair_color"},
+    response_model=PersonOut
 )
 def create_person(person: Person = Body(...)):
     """/person/new -> creates a new person"""
